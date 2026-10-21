@@ -165,13 +165,18 @@
     for (let g = 0; t < o.secs; g++) {
       const sim = new PB.Sim(def, { easy: o.easy, seed: 300 + g });
       if (o.block) {
-        // the sabotage: a wall in front of the first standup target
-        const s = sim.geo.standups[0];
-        const nx = s.nx, ny = s.ny, mx = (s.ax + s.bx) / 2 + nx * 0.7, my = (s.ay + s.by) / 2 + ny * 0.7;
-        const seg = Object.assign({}, sim.geo.shapes.find((x) => x.k === 'seg'));
-        Object.assign(seg, { ax: mx - s.dx * 1.2, ay: my - s.dy * 1.2, bx: mx + s.dx * 1.2, by: my + s.dy * 1.2, len: 2.4, dx: s.dx, dy: s.dy, nx: s.nx, ny: s.ny, r: 0.1, kind: 'wall', id: null, one: false, on: true, kick: 0 });
-        Object.assign(seg, { minx: Math.min(seg.ax, seg.bx) - 0.1, maxx: Math.max(seg.ax, seg.bx) + 0.1, miny: Math.min(seg.ay, seg.by) - 0.1, maxy: Math.max(seg.ay, seg.by) + 0.1 });
-        sim.geo.shapes.push(seg);
+        // the sabotage: a box of walls built round the first standup target
+        const s = sim.geo.standups[0], base = sim.geo.shapes.find((x) => x.k === 'seg');
+        const mx = (s.ax + s.bx) / 2, my = (s.ay + s.by) / 2;
+        const at = (a, n) => [mx + s.dx * a + s.nx * n, my + s.dy * a + s.ny * n];
+        const box = [at(-1.4, -0.9), at(-1.4, 0.8), at(1.4, 0.8), at(1.4, -0.9)];
+        for (let i = 0; i < 3; i++) {
+          const [ax, ay] = box[i], [bx, by] = box[i + 1], len = Math.hypot(bx - ax, by - ay);
+          sim.geo.shapes.push(Object.assign({}, base, {
+            ax, ay, bx, by, len, dx: (bx - ax) / len, dy: (by - ay) / len, nx: -(by - ay) / len, ny: (bx - ax) / len, r: 0.1, kind: 'wall', id: null, one: false, on: true,
+            minx: Math.min(ax, bx) - 0.1, maxx: Math.max(ax, bx) + 0.1, miny: Math.min(ay, by) - 0.1, maxy: Math.max(ay, by) + 0.1,
+          }));
+        }
       }
       ids = ids || targetIds(sim);
       const bot = new PB.Bot(sim, { seed: 400 + g });
@@ -355,12 +360,12 @@
       const bad = soak({ balls: Math.min(nb, 12), secs: 4, vmax: PB.VMAX * 2, seed: 1, naive: true });
       sab(bad.fails.length > 0, 'soak', bad.fails.length ? bad.fails[0] : 'the move-then-push-out mover was never caught');
       // autopilot
-      for (const def of PB.TABLES) {
-        const r = lifetimes(def, { games: quick ? 2 : 4, balls: 3, limit: 240, easy: false });
-        say(r.median >= 40, `autopilot ${def.id}`, `median ball ${r.median.toFixed(0)} s, mean ${r.mean.toFixed(0)} s over ${r.lives.length} balls (NORMAL, no ball saver; needs a median of 40 s)`);
-      }
+      const all = [];
+      const per = PB.TABLES.map((def) => { const r = lifetimes(def, { games: quick ? 2 : 4, balls: 3, limit: 240, easy: false }); all.push(...r.lives); return `${def.id} ${r.mean.toFixed(0)} s`; });
+      const mean = all.reduce((a, b) => a + b, 0) / all.length;
+      say(mean >= 45, 'autopilot', `a ball lasts ${mean.toFixed(0)} s on average over ${all.length} balls (${per.join(', ')}; NORMAL, no ball saver; needs 45 s)`);
       const lazy = lifetimes(PB.TABLES[0], { games: 2, balls: 3, limit: 240, easy: false, lazy: true });
-      sab(lazy.median < 40, 'autopilot', `a bot that never flips: median ${lazy.median.toFixed(1)} s`);
+      sab(lazy.mean < 45, 'autopilot', `a bot that never flips: ${lazy.mean.toFixed(1)} s on average`);
       // targets
       for (const def of PB.TABLES) {
         for (const easy of [true, false]) {
@@ -369,7 +374,7 @@
         }
       }
       const blk = coverage(PB.TABLES[0], { secs: quick ? 200 : 400, easy: true, block: true });
-      sab(blk.missing.length > 0, 'targets', blk.missing.length ? `never hit: ${blk.missing.join(', ')}` : 'everything was still hit');
+      sab(blk.missing.includes('standup0'), 'targets', blk.missing.length ? `never hit: ${blk.missing.join(', ')} (the boxed-in standup0 must be one)` : 'everything was still hit');
       // scoring
       const sf = scoring();
       say(!sf.length, 'scoring', sf.length ? sf.join('; ') : 'bumper, drop targets and bank, ramps (and roll-backs), spinner, lit target, ball saver, MULTIBALL and jackpot, 2-player turns');

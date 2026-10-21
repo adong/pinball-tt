@@ -196,17 +196,25 @@
     #saverBar i { width: 70px; }
     .kid { width: 136px; }
     .kid img { width: 86px; height: 86px; }
-    .big { font-size: 20px; padding: 10px 20px; }
+    .big { font-size: 18px; padding: 9px 14px; }
+    .big.two img { width: 34px; height: 34px; }
     #tableName { display: none; }
+    /* the kit's round buttons sit in the middle of the left edge: keep the menus beside them */
+    .screen { padding-left: 58px; padding-right: 8px; }
+    .seg button { font-size: 12px; padding: 8px 9px; }
+    .chip { font-size: 13px; padding: 8px 12px; }
+    .keys { font-size: 12px; }
   }
   /* short screens (a phone on its side): the HUD goes down the sides, beside the table */
   @media (max-height: 520px) {
     .screen { gap: 6px; padding: 8px; }
-    .logo { font-size: clamp(34px, 11vh, 60px); }
-    .sub { font-size: 14px; }
-    .kid { width: 130px; padding: 5px 8px 7px; border-radius: 18px; }
-    .kid img { width: 50px; height: 50px; }
-    .kid b { font-size: 18px; }
+    .logo { font-size: clamp(30px, 10vh, 52px); }
+    .sub { display: none; }
+    .kid { width: auto; flex-direction: row; gap: 8px; padding: 4px 14px 4px 4px; border-radius: 999px; }
+    .kid img { width: 44px; height: 44px; }
+    .kid b { font-size: 17px; margin: 0; }
+    .kid small { display: none; }
+    .kid.sel { transform: scale(1.04); }
     .big { font-size: 17px; padding: 7px 16px; }
     .big.two img { width: 30px; height: 30px; }
     .keys { display: none; }
@@ -214,7 +222,9 @@
     .card h2 { font-size: clamp(22px, 9vh, 36px); }
     .seg button, .chip { font-size: 13px; padding: 6px 12px; min-height: 40px; }
     .top { grid-template-columns: auto 1fr auto; }
-    .mid { grid-column: 1; grid-row: 2; align-items: flex-start; }
+    .mid { grid-column: 3; grid-row: 2; align-items: flex-end; }
+    #saverBar { top: auto; bottom: 74px; }
+    #hint, body.touch #hint { font-size: 12px; padding: 4px 10px 6px; left: auto; right: max(10px, env(safe-area-inset-right)); transform: none; bottom: 74px; white-space: normal; width: 140px; }
     #tableName { display: none; }
     #toasts { top: 26vh; }
     #banner { padding: 8px 20px 10px; }

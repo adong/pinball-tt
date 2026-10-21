@@ -355,8 +355,12 @@
     g.add(bbox);
     this.backbox = bbox;
     // balls
-    for (const b of this.balls) this.root.remove(b);
+    for (const b of this.balls) this.root.remove(b, b.userData.dark);
     this.balls = [];
+  };
+
+  View.prototype.shadowTex = function () {
+    return this._shadow || (this._shadow = Gx.radialTexture(64, [[0, 'rgba(10,8,30,0.75)'], [0.55, 'rgba(10,8,30,0.4)'], [1, 'rgba(10,8,30,0)']]));
   };
 
   View.prototype.relabel = function () {
@@ -377,13 +381,20 @@
     while (this.balls.length < sim.balls.length) {
       const m = new T.Mesh(this.ballGeo, this.ballMat);
       m.castShadow = true;
-      this.root.add(m);
+      // a soft dark patch under the ball, so it stands out even on the pale Candy table
+      const dark = new T.Mesh(new T.CircleGeometry(1.0, 20), new T.MeshBasicMaterial({ map: this.shadowTex(), transparent: true, depthWrite: false }));
+      dark.rotation.x = -Math.PI / 2;
+      m.userData.dark = dark;
+      this.root.add(m, dark);
       this.balls.push(m);
     }
     this.balls.forEach((m, i) => {
       const b = sim.balls[i];
-      m.visible = !!b;
-      if (b) m.position.copy(v3(b.x, b.y, (b.z || 0) + PB.R));
+      m.visible = m.userData.dark.visible = !!b;
+      if (b) {
+        m.position.copy(v3(b.x, b.y, (b.z || 0) + PB.R));
+        m.userData.dark.position.copy(v3(b.x, b.y, (b.z || 0) + 0.03));
+      }
     });
     // flippers
     for (const f of sim.flippers) {
@@ -626,8 +637,8 @@
     const cam = this.camera;
     cam.aspect = w / h;
     cam.clearViewOffset();
-    const u = Math.max(0, Math.min(1, (aspect - 0.5) / 1.1));
-    const elev = (68 - u * 30) * (Math.PI / 180);
+    const u = Math.max(0, Math.min(1, (aspect - 0.55) / 0.75));
+    const elev = (70 - u * 37) * (Math.PI / 180);
     this.root.updateMatrixWorld(true);
     const pts = [];
     for (const x of [-1.6, 23.2]) for (const y of [-8.8, 46.6]) for (const hh of [0, 1.8]) pts.push(v3(x, y, hh));

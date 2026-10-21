@@ -32,11 +32,12 @@
   const tapped = new Set(); // pressed since the last step: a quick tap still flips even if released before the next frame
   const fingers = new Map(); // pointerId -> 'L' | 'R'
   let nudgeTap = false;
-  const LEFT = ['KeyZ', 'ArrowLeft', 'ShiftLeft'], RIGHT = ['KeyM', 'Slash', 'ArrowRight', 'ShiftRight'], PLUNGE = ['Space', 'ArrowDown'], NUDGE = ['KeyN', 'ArrowUp'];
+  // (no Shift keys: Shift held for a flipper plus / for the other would type ? and open the keys panel)
+  const LEFT = ['KeyZ', 'ArrowLeft'], RIGHT = ['Slash', 'ArrowRight'], PLUNGE = ['Space', 'ArrowDown'], NUDGE = ['KeyN', 'ArrowUp'];
 
   addEventListener('keydown', (e) => {
     S.init();
-    if (/^Arrow|^Space$/.test(e.code)) e.preventDefault();
+    if (/^Arrow|^Space$|^Slash$/.test(e.code)) e.preventDefault(); // (a bare / opens Quick Find in Firefox)
     const fresh = !keys.has(e.code);
     keys.add(e.code);
     tapped.add(e.code);
@@ -47,8 +48,7 @@
 
   function onKey(code) {
     const sc = G.screen;
-    // M is the right flipper while a ball is in play (the brief's Z / M); everywhere else it's the sound switch
-    if (code === 'KeyM' && sc !== 'play') return toggleMute();
+    if (code === 'KeyM') return toggleMute();
     if (sc === 'play') {
       if (code === 'KeyT' || code === 'Enter' || code === 'NumpadEnter') callBuddy();
       else if (code === 'KeyP' || code === 'Escape') pause();

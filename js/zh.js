@@ -1,6 +1,6 @@
 /* 中文 for TT Pinball: the words on the page, the toasts, the table names (also painted on the backbox through
    Kit.lang.t in js/view.js), and the ? panel. Stays in English on purpose: the kids' names (TEDDY, TOMMY) and the
-   game's name (Alan picks the names), and the key labels (Z, M, Space shows as 空格 through the kit).
+   game's name (Alan picks the names), and the key labels (Z, /, M, Space shows as 空格 through the kit).
    Kid-friendly words: 弹珠台 (pinball table), 弹簧 (the plunger's spring), 挡板 (flipper), 多球 (MULTIBALL). */
 (function () {
   const L = Kit.lang;
@@ -17,7 +17,7 @@
     '🚀 SPACE': '🚀 太空', '🐒 JUNGLE': '🐒 丛林', '🍭 CANDY': '🍭 糖果',
     '🐣 EASY': '🐣 简单', '🔥 NORMAL': '🔥 普通',
     // HUD
-    'Pause (P)': '暂停 (P)', Sound: '声音', 'press T': '按 T', 'tap for more help': '再点一下，再帮你一次',
+    'Pause (P)': '暂停 (P)', 'Sound (M)': '声音 (M)', 'press T': '按 T', 'tap for more help': '再点一下，再帮你一次',
     'HIGH FIVE! ✋': '击掌！✋', NUDGE: '摇一摇',
     'HOLD SPACE, THEN LET GO!': '按住空格拉弹簧，再松开！', 'HOLD YOUR FINGER DOWN, THEN LET GO!': '按住屏幕拉弹簧，再松开！',
     // toasts
@@ -35,10 +35,9 @@
     // the ? panel
     'left flipper': '左挡板', 'right flipper': '右挡板', 'pull the plunger · let go to launch': '拉弹簧 · 松开就发射',
     'nudge the table (not too much!)': '摇一摇弹珠台（别摇太多！）', 'call your brother · high five': '叫兄弟来帮忙 · 击掌',
-    'Z or ←': 'Z 或 ←', 'M or →': 'M 或 →', 'hold Space or ↓': '按住 空格 或 ↓',
+    'Z or ←': 'Z 或 ←', '/ or →': '/ 或 →', 'hold Space or ↓': '按住 空格 或 ↓',
     'N or ↑': 'N 或 ↑', 'T or Enter': 'T 或 回车', 'P or Esc · M': 'P 或 Esc · M',
-    'M switches the sound on the menus; while a ball is in play, M is the right flipper and the 🔊 button at the top switches the sound. The Shift keys flip too. 2 players take turns, a ball each, with the same keys.':
-      '在菜单里按 M 开关声音；玩的时候 M 是右挡板，上面的 🔊 按钮开关声音。两个 Shift 键也能打挡板。双人时两个人轮流，每人打一个球，用一样的按键。',
+    '2 players take turns, a ball each, with the same keys.': '双人时两个人轮流，每人打一个球，用一样的按键。',
     'The left half of the screen is the left flipper, the right half the right one. While the ball waits by the plunger, hold a finger down, then let go to launch. NUDGE shakes the table. The round face button (top right) calls your brother.':
       '左半边屏幕是左挡板，右半边是右挡板。球在弹簧旁边等着的时候，按住屏幕再松开就能发射。“摇一摇”按钮可以摇弹珠台。右上角的圆形头像按钮可以叫兄弟来帮忙。',
   });

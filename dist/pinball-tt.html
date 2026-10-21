@@ -248,7 +248,7 @@
       <div class="row">
         <button class="ibtn" id="btnPause" title="Pause (P)">❚❚</button>
         <div class="pill" id="tableName"></div>
-        <button class="ibtn" id="btnMute" title="Sound">🔊</button>
+        <button class="ibtn" id="btnMute" title="Sound (M)">🔊</button>
       </div>
       <div id="tiltTag" class="hidden">TILT!</div>
     </div>
@@ -282,9 +282,9 @@
     <button class="chip" id="btnMute2">🔊</button>
   </div>
   <p class="best" id="bestLine"></p>
-  <p class="keys" data-zh="<kbd>Z</kbd> 左挡板 · <kbd>M</kbd> 右挡板（也可以用 <kbd>←</kbd> <kbd>→</kbd>）· 按住 <kbd>空格</kbd> 拉弹簧，松开发射 · <kbd>N</kbd> 或 <kbd>↑</kbd> 摇一摇<br>手指：左半边屏幕是左挡板，右半边是右挡板 · <kbd>T</kbd> 叫兄弟来帮忙 · <kbd>P</kbd> 暂停 · 在菜单里按 <kbd>M</kbd> 开关声音">
-    <kbd>Z</kbd> left flipper · <kbd>M</kbd> right flipper (or <kbd>←</kbd> <kbd>→</kbd>) · hold <kbd>Space</kbd> to pull the plunger, let go to launch · <kbd>N</kbd> or <kbd>↑</kbd> nudges<br>
-    Fingers: the left half of the screen is the left flipper, the right half the right one · <kbd>T</kbd> calls your brother · <kbd>P</kbd> pause · <kbd>M</kbd> on the menus switches the sound
+  <p class="keys" data-zh="<kbd>Z</kbd> 左挡板 · <kbd>/</kbd> 右挡板（也可以用 <kbd>←</kbd> <kbd>→</kbd>）· 按住 <kbd>空格</kbd> 拉弹簧，松开发射 · <kbd>N</kbd> 或 <kbd>↑</kbd> 摇一摇<br>手指：左半边屏幕是左挡板，右半边是右挡板 · <kbd>T</kbd> 叫兄弟来帮忙 · <kbd>P</kbd> 暂停 · <kbd>M</kbd> 声音">
+    <kbd>Z</kbd> left flipper · <kbd>/</kbd> right flipper (or <kbd>←</kbd> <kbd>→</kbd>) · hold <kbd>Space</kbd> to pull the plunger, let go to launch · <kbd>N</kbd> or <kbd>↑</kbd> nudges<br>
+    Fingers: the left half of the screen is the left flipper, the right half the right one · <kbd>T</kbd> calls your brother · <kbd>P</kbd> pause · <kbd>M</kbd> sound
   </p>
 </div>
 
@@ -4272,11 +4272,12 @@ PB.SUBTITLE = 'Teddy & Tommy flip, bump and bonk!';
   const tapped = new Set(); // pressed since the last step: a quick tap still flips even if released before the next frame
   const fingers = new Map(); // pointerId -> 'L' | 'R'
   let nudgeTap = false;
-  const LEFT = ['KeyZ', 'ArrowLeft', 'ShiftLeft'], RIGHT = ['KeyM', 'Slash', 'ArrowRight', 'ShiftRight'], PLUNGE = ['Space', 'ArrowDown'], NUDGE = ['KeyN', 'ArrowUp'];
+  // (no Shift keys: Shift held for a flipper plus / for the other would type ? and open the keys panel)
+  const LEFT = ['KeyZ', 'ArrowLeft'], RIGHT = ['Slash', 'ArrowRight'], PLUNGE = ['Space', 'ArrowDown'], NUDGE = ['KeyN', 'ArrowUp'];
 
   addEventListener('keydown', (e) => {
     S.init();
-    if (/^Arrow|^Space$/.test(e.code)) e.preventDefault();
+    if (/^Arrow|^Space$|^Slash$/.test(e.code)) e.preventDefault(); // (a bare / opens Quick Find in Firefox)
     const fresh = !keys.has(e.code);
     keys.add(e.code);
     tapped.add(e.code);
@@ -4287,8 +4288,7 @@ PB.SUBTITLE = 'Teddy & Tommy flip, bump and bonk!';
 
   function onKey(code) {
     const sc = G.screen;
-    // M is the right flipper while a ball is in play (the brief's Z / M); everywhere else it's the sound switch
-    if (code === 'KeyM' && sc !== 'play') return toggleMute();
+    if (code === 'KeyM') return toggleMute();
     if (sc === 'play') {
       if (code === 'KeyT' || code === 'Enter' || code === 'NumpadEnter') callBuddy();
       else if (code === 'KeyP' || code === 'Escape') pause();
@@ -4825,13 +4825,13 @@ Kit.help.setup({
   title: PB.TITLE,
   keys: [
     ['left flipper', 'Z or ←'],
-    ['right flipper', 'M or →'],
+    ['right flipper', '/ or →'],
     ['pull the plunger · let go to launch', 'hold Space or ↓'],
     ['nudge the table (not too much!)', 'N or ↑'],
     ['call your brother · high five', 'T or Enter'],
     ['pause · sound', 'P or Esc · M'],
   ],
-  note: 'M switches the sound on the menus; while a ball is in play, M is the right flipper and the 🔊 button at the top switches the sound. The Shift keys flip too. 2 players take turns, a ball each, with the same keys.',
+  note: '2 players take turns, a ball each, with the same keys.',
   touch: 'The left half of the screen is the left flipper, the right half the right one. While the ball waits by the plunger, hold a finger down, then let go to launch. NUDGE shakes the table. The round face button (top right) calls your brother.',
 });
 
@@ -4839,7 +4839,7 @@ Kit.help.setup({
 <script>
 /* 中文 for TT Pinball: the words on the page, the toasts, the table names (also painted on the backbox through
    Kit.lang.t in js/view.js), and the ? panel. Stays in English on purpose: the kids' names (TEDDY, TOMMY) and the
-   game's name (Alan picks the names), and the key labels (Z, M, Space shows as 空格 through the kit).
+   game's name (Alan picks the names), and the key labels (Z, /, M, Space shows as 空格 through the kit).
    Kid-friendly words: 弹珠台 (pinball table), 弹簧 (the plunger's spring), 挡板 (flipper), 多球 (MULTIBALL). */
 (function () {
   const L = Kit.lang;
@@ -4856,7 +4856,7 @@ Kit.help.setup({
     '🚀 SPACE': '🚀 太空', '🐒 JUNGLE': '🐒 丛林', '🍭 CANDY': '🍭 糖果',
     '🐣 EASY': '🐣 简单', '🔥 NORMAL': '🔥 普通',
     // HUD
-    'Pause (P)': '暂停 (P)', Sound: '声音', 'press T': '按 T', 'tap for more help': '再点一下，再帮你一次',
+    'Pause (P)': '暂停 (P)', 'Sound (M)': '声音 (M)', 'press T': '按 T', 'tap for more help': '再点一下，再帮你一次',
     'HIGH FIVE! ✋': '击掌！✋', NUDGE: '摇一摇',
     'HOLD SPACE, THEN LET GO!': '按住空格拉弹簧，再松开！', 'HOLD YOUR FINGER DOWN, THEN LET GO!': '按住屏幕拉弹簧，再松开！',
     // toasts
@@ -4874,10 +4874,9 @@ Kit.help.setup({
     // the ? panel
     'left flipper': '左挡板', 'right flipper': '右挡板', 'pull the plunger · let go to launch': '拉弹簧 · 松开就发射',
     'nudge the table (not too much!)': '摇一摇弹珠台（别摇太多！）', 'call your brother · high five': '叫兄弟来帮忙 · 击掌',
-    'Z or ←': 'Z 或 ←', 'M or →': 'M 或 →', 'hold Space or ↓': '按住 空格 或 ↓',
+    'Z or ←': 'Z 或 ←', '/ or →': '/ 或 →', 'hold Space or ↓': '按住 空格 或 ↓',
     'N or ↑': 'N 或 ↑', 'T or Enter': 'T 或 回车', 'P or Esc · M': 'P 或 Esc · M',
-    'M switches the sound on the menus; while a ball is in play, M is the right flipper and the 🔊 button at the top switches the sound. The Shift keys flip too. 2 players take turns, a ball each, with the same keys.':
-      '在菜单里按 M 开关声音；玩的时候 M 是右挡板，上面的 🔊 按钮开关声音。两个 Shift 键也能打挡板。双人时两个人轮流，每人打一个球，用一样的按键。',
+    '2 players take turns, a ball each, with the same keys.': '双人时两个人轮流，每人打一个球，用一样的按键。',
     'The left half of the screen is the left flipper, the right half the right one. While the ball waits by the plunger, hold a finger down, then let go to launch. NUDGE shakes the table. The round face button (top right) calls your brother.':
       '左半边屏幕是左挡板，右半边是右挡板。球在弹簧旁边等着的时候，按住屏幕再松开就能发射。“摇一摇”按钮可以摇弹珠台。右上角的圆形头像按钮可以叫兄弟来帮忙。',
   });

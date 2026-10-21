@@ -86,16 +86,16 @@ never lose the ball for it.
 
 | | Keys | Touch |
 |---|---|---|
-| left flipper | Z or ← (or Left Shift) | the left half of the screen, or the ◀ pad |
-| right flipper | M or → (or Right Shift) | the right half of the screen, or the ▶ pad |
+| left flipper | Z or ← | the left half of the screen, or the ◀ pad |
+| right flipper | / or → | the right half of the screen, or the ▶ pad |
 | plunger | hold Space or ↓, let go to launch | while the ball waits on the plunger, hold any finger down, then let go |
 | nudge | N or ↑ | NUDGE (bottom middle) |
 | call your brother / high five | T or Enter | the round face button, top right |
-| pause / sound | P or Esc / M on the menus (🔊 at the top while playing) | ❚❚ / 🔊 at the top |
+| pause / sound | P or Esc / M | ❚❚ / 🔊 at the top |
 
-The brief asked for the flippers on **Z and M**, and every Teddy & Tommy game uses **M for sound**. So while a ball is
-in play M is the right flipper, and the sound switch is the 🔊 button at the top; on the title, pause and results
-screens M switches the sound as usual. The ? panel says so too.
+The brief asked for the flippers on Z and M, but every Teddy & Tommy game uses **M for sound**, so (Alan's choice) the
+right flipper is **/** and M is the sound key everywhere, as in the other games. There are no Shift-key flippers: Shift
+held for one flipper plus / for the other would type ? and open the keys panel in the middle of a ball.
 
 On the title: Enter or Space starts 1 player as the brother you picked last (← → to switch), 2 starts two players,
 E switches EASY / NORMAL, ↑ ↓ change the table.

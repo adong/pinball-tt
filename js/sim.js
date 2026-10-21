@@ -250,7 +250,8 @@
   };
 
   Sim.prototype.fire = function (b, power, auto) {
-    b.vy = PLUNGE_MIN + Math.max(0, Math.min(1, power)) * (PLUNGE_MAX - PLUNGE_MIN);
+    // scaled by the slope, so a pull sends the ball just as far up the table on EASY as on NORMAL
+    b.vy = (PLUNGE_MIN + Math.max(0, Math.min(1, power)) * (PLUNGE_MAX - PLUNGE_MIN)) * Math.sqrt(this.D.g / DIFF.normal.g);
     b.vx = 0;
     this.emit('launch', { power, auto: !!auto });
     if (this.state === 'ready') {

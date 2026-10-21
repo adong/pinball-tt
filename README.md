@@ -23,8 +23,9 @@ The name lives in one place, [js/title.js](js/title.js). "TT Pinball" is a worki
 - **Get kit updates** from `~/claude-games/kit`: `python3 ../kit/tools/sync.py .`, then rebuild.
 - **On the title screen** tap TEDDY or TOMMY (1 player) or 2 PLAYERS, pick a table (🚀 SPACE, 🐒 JUNGLE, 🍭 CANDY)
   and 🐣 EASY (the default) or 🔥 NORMAL. Behind the menu the autopilot plays the table you picked.
-- **Three balls each.** Pull the plunger back (hold Space, or hold a finger down) and let go to launch. A gentle pull
-  still gets the ball into play; a full pull sends it round the top and through the spinner.
+- **Three balls each.** Pull the plunger back (hold Space, or hold a finger down) and let go to launch. A tap still
+  gets the ball into play, a gentle pull (about a quarter) rolls it through the top lanes, and a full pull sends it
+  round the top and down through the spinner.
 - **The end:** GREAT GAME! (or "TEDDY WINS!" in 2 players), the scores and your best for that table and level, and the
   winner does his signature move on the apron with confetti: Teddy's Tyson-style boxing and his 🏀 jump shot, Tommy's
   Y with peace fingers. PLAY AGAIN starts the same table again.
@@ -117,14 +118,14 @@ In 2 players both brothers are already on the apron, so the button is a **HIGH F
 ## How it's checked
 
 The rules and the physics live in [js/sim.js](js/sim.js) and [js/tables.js](js/tables.js) (no Three.js), so
-`node tools/check.js` plays the real game headlessly (about 70 s; `--quick` about 20 s) and `game.check()` runs
+`node tools/check.js` plays the real game headlessly (about 90 s; `--quick` about 35 s) and `game.check()` runs
 the quick version in the page. Every check also runs a sabotaged version that must fail:
 
 | check | what passes | the sabotage that must fail |
 |---|---|---|
 | soak | 240 balls at top speed (85) and 240 at twice that (170), on every table at both levels, flippers flapping: every step's path checked against every wall, post, bumper, slingshot and target and every flipper. Nothing escapes the table or passes through anything (about 540,000 pieces of path) | a mover without the swept test (move, then push out of overlaps) is caught going into a flipper or out of the table |
 | autopilot | the autopilot (it flips when the ball reaches a flipper, and cradles slow balls and aims) keeps a ball alive 45 s or more on average on NORMAL with no ball saver (it manages well over a minute) | a bot that never flips: about 6 s |
-| targets | every bumper, slingshot, drop and standup target, the spinner, the three lanes and every ramp is hit by the autopilot, on every table at both levels | a box of walls built round one target: that target is never hit |
+| targets | every bumper, slingshot, drop and standup target, the spinner, the three lanes and every ramp is hit, on every table at both levels: by the autopilot playing for 25 minutes, by every plunger power from a tap to a full pull, and by a ball rolled down each inlane and flipped at 60 different moments | a box of walls built round one target: that target is never hit |
 | scoring | bumper, drop targets and the bank, ramps (and a weak shot rolling back out), spinner, the lit target, the ball saver, MULTIBALL and its jackpot, and 2-player turns in the right order | bumpers scoring nothing |
 | frame rate | the same launch with the autopilot playing on ends with the same score and the ball in exactly the same place at 30, 60 and 120 frames a second | stepping by the frame time instead gives three different endings |
 | plunger | every plunger power from 0 to 1 on every table puts the ball in play | |

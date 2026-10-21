@@ -2278,7 +2278,8 @@ PB.SUBTITLE = 'Teddy & Tommy flip, bump and bonk!';
   };
 
   Sim.prototype.fire = function (b, power, auto) {
-    b.vy = PLUNGE_MIN + Math.max(0, Math.min(1, power)) * (PLUNGE_MAX - PLUNGE_MIN);
+    // scaled by the slope, so a pull sends the ball just as far up the table on EASY as on NORMAL
+    b.vy = (PLUNGE_MIN + Math.max(0, Math.min(1, power)) * (PLUNGE_MAX - PLUNGE_MIN)) * Math.sqrt(this.D.g / DIFF.normal.g);
     b.vx = 0;
     this.emit('launch', { power, auto: !!auto });
     if (this.state === 'ready') {
@@ -2856,7 +2857,8 @@ PB.SUBTITLE = 'Teddy & Tommy flip, bump and bonk!';
                 target, and every flipper. Sabotage: a mover without the swept test (move, then push out of overlaps).
      autopilot  the autopilot keeps a ball alive a long time (NORMAL, no ball saver). Sabotage: a bot that never flips.
      targets    every target can be hit: bumpers, slingshots, drop and standup targets, the spinner, the three top
-                lanes and every ramp, all hit by the autopilot. Sabotage: a wall put in front of one target.
+                lanes and every ramp, all hit by the autopilot, a plunger shot or a flipper shot from an inlane. Sabotage: a box
+                of walls round one target.
      scoring    each thing scores what it should (bumper, drop target, the bank, ramp, spinner, lit target, MULTIBALL
                 and its jackpot) and 2 players take turns, 3 balls each. Sabotage: bumpers scoring nothing.
      framerate  the same launch (and the autopilot playing on) ends the same at 30, 60 and 120 frames a second.
@@ -3012,11 +3014,12 @@ PB.SUBTITLE = 'Teddy & Tommy flip, bump and bonk!';
   }
   function coverage(def, o) {
     const hits = {};
-    let ids = null, t = 0;
-    for (let g = 0; t < o.secs; g++) {
-      const sim = new PB.Sim(def, { easy: o.easy, seed: 300 + g });
+    const ids = targetIds(new PB.Sim(def, { easy: o.easy }));
+    const add = (sim) => { for (const k in sim.hits) hits[k] = (hits[k] || 0) + sim.hits[k]; };
+    // every table made here gets the sabotage when there is one: a box of walls built round the first standup target
+    const make = (seed, noSaver) => {
+      const sim = new PB.Sim(def, { easy: o.easy, seed, noSaver });
       if (o.block) {
-        // the sabotage: a box of walls built round the first standup target
         const s = sim.geo.standups[0], base = sim.geo.shapes.find((x) => x.k === 'seg');
         const mx = (s.ax + s.bx) / 2, my = (s.ay + s.by) / 2;
         const at = (a, n) => [mx + s.dx * a + s.nx * n, my + s.dy * a + s.ny * n];
@@ -3029,14 +3032,38 @@ PB.SUBTITLE = 'Teddy & Tommy flip, bump and bonk!';
           }));
         }
       }
-      ids = ids || targetIds(sim);
+      return sim;
+    };
+    // the autopilot plays game after game
+    let t = 0;
+    for (let g = 0; t < o.secs; g++) {
+      const sim = make(300 + g, false);
       const bot = new PB.Bot(sim, { seed: 400 + g });
       while (sim.state !== 'over' && t < o.secs) {
         sim.step(DT, bot.input(DT));
         t += DT;
         sim.events.length = 0;
       }
-      for (const k in sim.hits) hits[k] = (hits[k] || 0) + sim.hits[k];
+      add(sim);
+    }
+    // every plunger power, from a tap to a full pull (a gentle one rolls through the top lanes)
+    for (let p = 0; p <= 1.0001; p += 0.02) {
+      const sim = make(5, true);
+      sim.fire(sim.balls[0], p);
+      for (let i = 0; i < 3 / DT; i++) sim.step(DT, {});
+      add(sim);
+    }
+    // a flipper sweep: a ball rolls down each inlane onto its flipper, flipped at 60 different moments
+    for (const side of ['L', 'R']) {
+      for (let k = 0; k < 60; k++) {
+        const sim = make(5, true);
+        sim.balls.length = 0; sim.state = 'play';
+        const b = sim.newBall();
+        b.x = side === 'L' ? 2.2 : 17.8; b.y = 12.5; b.vy = -4;
+        const at = 0.05 + k * 0.02;
+        for (let i = 0; i < 4 / DT; i++) sim.step(DT, side === 'L' ? { left: sim.t > at && sim.t < at + 0.3 } : { right: sim.t > at && sim.t < at + 0.3 });
+        add(sim);
+      }
     }
     const missing = ids.filter((id) => !hits[id]);
     return { hits, ids, missing };
@@ -3220,7 +3247,7 @@ PB.SUBTITLE = 'Teddy & Tommy flip, bump and bonk!';
       // targets
       for (const def of PB.TABLES) {
         for (const easy of [true, false]) {
-          const r = coverage(def, { secs: quick ? 600 : 1500, easy });
+          const r = coverage(def, { secs: quick ? 900 : 1500, easy });
           say(!r.missing.length, `targets ${def.id} ${easy ? 'EASY' : 'NORMAL'}`, r.missing.length ? `never hit: ${r.missing.join(', ')}` : `all ${r.ids.length} hit (fewest: ${r.ids.map((id) => [id, r.hits[id]]).sort((a, b) => a[1] - b[1]).slice(0, 3).map(([a, b]) => `${a} ${b}`).join(', ')})`);
         }
       }

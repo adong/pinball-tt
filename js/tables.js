@@ -181,12 +181,21 @@
       const L1 = [L0[0] + ux * deep, L0[1] + uy * deep], R1 = [R0[0] + ux * deep, R0[1] + uy * deep];
       // the mouth: two posts and a pocket behind the entry line (a ball that crosses the line is on the ramp)
       poly(shapes, [L0, L1, R1, R0], { r: 0.16, kind: 'rampWall', id: rd.id });
-      // the path, with distance along it
+      // the path, smoothed (Catmull-Rom) and with the distance along it
+      const raw = rd.path, dense = [];
+      for (let i = 0; i + 1 < raw.length; i++) {
+        const p0 = raw[Math.max(0, i - 1)], p1 = raw[i], p2 = raw[i + 1], p3 = raw[Math.min(raw.length - 1, i + 2)];
+        for (let k = 0; k < 6; k++) {
+          const t = k / 6, t2 = t * t, t3 = t2 * t;
+          dense.push([0, 1, 2].map((j) => 0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3)));
+        }
+      }
+      dense.push(raw[raw.length - 1]);
       const path = [];
       let s = 0;
-      rd.path.forEach(([x, y, z], i) => {
-        if (i) s += Math.hypot(x - rd.path[i - 1][0], y - rd.path[i - 1][1], z - rd.path[i - 1][2]);
-        path.push({ x, y, z, s });
+      dense.forEach(([x, y, z], i) => {
+        if (i) s += Math.hypot(x - dense[i - 1][0], y - dense[i - 1][1], z - dense[i - 1][2]);
+        path.push({ x, y, z: Math.max(0, z), s });
       });
       const n = path.length;
       const ex = norm(path[n - 1].x - path[n - 2].x, path[n - 1].y - path[n - 2].y);

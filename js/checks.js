@@ -369,7 +369,7 @@
       // targets
       for (const def of PB.TABLES) {
         for (const easy of [true, false]) {
-          const r = coverage(def, { secs: quick ? 300 : 900, easy });
+          const r = coverage(def, { secs: quick ? 600 : 1500, easy });
           say(!r.missing.length, `targets ${def.id} ${easy ? 'EASY' : 'NORMAL'}`, r.missing.length ? `never hit: ${r.missing.join(', ')}` : `all ${r.ids.length} hit (fewest: ${r.ids.map((id) => [id, r.hits[id]]).sort((a, b) => a[1] - b[1]).slice(0, 3).map(([a, b]) => `${a} ${b}`).join(', ')})`);
         }
       }

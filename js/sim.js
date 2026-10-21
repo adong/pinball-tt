@@ -22,8 +22,8 @@
   const RAMP_VMAX = 40, RAMP_EXIT_MIN = 7, RAMP_EXIT_MAX = 16;
   const TREATS = [['🍦', 'ICE CREAM'], ['💧', 'WATER'], ['🧃', 'JUICE'], ['🍪', 'COOKIE'], ['🍉', 'WATERMELON'], ['🍌', 'BANANA']];
   const DIFF = {
-    easy: { g: 22, saver: 20, mbNeed: 2, tiltMax: 6, balls: 3, deadFlippers: false, kickback: 'always' },
-    normal: { g: 27, saver: 8, mbNeed: 3, tiltMax: 4, balls: 3, deadFlippers: true, kickback: 'bank' },
+    easy: { g: 22, saver: 20, mbNeed: 2, tiltMax: 6, balls: 3, deadFlippers: false, kickback: 'always', rampG: 0.72, mbOnEntry: true },
+    normal: { g: 27, saver: 8, mbNeed: 3, tiltMax: 4, balls: 3, deadFlippers: true, kickback: 'bank', rampG: 0.9, mbOnEntry: false },
   };
   const SCORE = {
     bumper: 100, sling: 10, drop: 500, bank: 5000, standup: 1000, lit: 5000, spin: 100, lane: 300, lanes: 3000,
@@ -524,6 +524,8 @@
             b.x = tr.ramp.path[0].x;
             b.y = tr.ramp.path[0].y;
             this.emit('rampIn', { id: tr.ramp.id });
+            // EASY: a lit MULTIBALL starts as soon as the ball goes into a ramp, even if it rolls back out
+            if (this.mb.ready && this.D.mbOnEntry) this.startMultiball();
             return true;
           }
           break;
@@ -539,7 +541,9 @@
     let i = 1;
     while (i < P.length - 1 && P[i].s < st.s) i++;
     const a = P[i - 1], c = P[i], ds = c.s - a.s || 1;
-    const acc = -(this.D.g * (c.y - a.y) + this.D.g * 2.2 * (c.z - a.z)) / ds - 1.5 * Math.sign(st.v);
+    // climbing up the table and up off it both slow the ball (EASY ramps are gentler)
+    const g = this.D.g * this.D.rampG;
+    const acc = -(g * (c.y - a.y) + g * 1.6 * (c.z - a.z)) / ds - 1.0 * Math.sign(st.v);
     st.v = Math.max(-RAMP_VMAX, Math.min(RAMP_VMAX, st.v + acc * dt));
     st.s += st.v * dt;
     if (st.s >= r.S) {
